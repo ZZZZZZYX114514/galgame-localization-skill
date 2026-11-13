@@ -1,0 +1,4 @@
+interface:
+  display_name: "Galgame 汉化"
+  short_description: "识别视觉小说引擎，提取与回写文本，处理字体、按钮和迁移补丁"
+  default_prompt: "使用 $galgame-localization 继续本地 Galgame 的汉化，先识别引擎并检查当前进度。"
