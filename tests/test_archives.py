@@ -47,5 +47,25 @@ class ArchiveTests(unittest.TestCase):
             command_extract(argparse.Namespace(archive=archive, out=target))
             self.assertEqual((target / '①.txt').read_bytes(), b'synthetic content')
 
+    def test_pack_rejects_file_source_before_overwriting_it(self):
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / 'original.pak'
+            source.write_bytes(b'preserve original input')
+            with self.assertRaises(ValueError):
+                command_pack(argparse.Namespace(source=source, output=source))
+            self.assertEqual(source.read_bytes(), b'preserve original input')
+
+    def test_repeated_pack_inside_source_excludes_its_own_output(self):
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory)
+            (source / 'sample.txt').write_bytes(b'synthetic content')
+            output = source / 'bundle.pak'
+            arguments = argparse.Namespace(source=source, output=output)
+            command_pack(arguments)
+            first = output.read_bytes()
+            command_pack(arguments)
+            self.assertEqual(output.read_bytes(), first)
+            self.assertEqual(len(read_entries(first)), 1)
+
 if __name__ == "__main__":
     unittest.main()

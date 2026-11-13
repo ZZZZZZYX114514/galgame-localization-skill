@@ -158,9 +158,12 @@ def command_extract(args: argparse.Namespace) -> None:
 
 def command_pack(args: argparse.Namespace) -> None:
     source = args.source
+    if not source.is_dir():
+        raise ValueError("pack source must be a directory")
+    output = args.output.resolve()
     payloads: list[tuple[bytes, bytes]] = []
     for path in sorted(source.rglob("*")):
-        if not path.is_file():
+        if not path.is_file() or path.resolve() == output:
             continue
         relative = path.relative_to(source).as_posix().encode("cp932") + b"\0"
         payloads.append((relative, path.read_bytes()))
